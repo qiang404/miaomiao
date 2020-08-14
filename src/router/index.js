@@ -7,6 +7,7 @@ import mineRouter from './mine'
 Vue.use(VueRouter)
 
   const routes = [
+    {path:'/',redirect:'/movie'},
     movieRouter,
     cinemaRouter,
     mineRouter
