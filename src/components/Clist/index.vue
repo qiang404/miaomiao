@@ -1,96 +1,60 @@
 <template>
     <div class="cinema_body">
         <ul>
-            <li>
+            <li v-for="item in cinemaList" :key="item.id">
                 <div>
-                    <span>大地影院(澳东世纪店)</span>
-                    <span class="q"><span class="price">22.9</span> 元起</span>
+                    <span>{{ item.nm }}</span>
+                    <span class="q"><span class="price">{{ item.sellPrice }}</span> 元起</span>
                 </div>
                 <div class="address">
-                    <span>金州区大连经济技术开发区澳东世纪3层</span>
-                    <span>1763.5km</span>
+                    <span>{{ item.addr}}</span>
+                    <span>{{ item.distance }}</span>
                 </div>
                 <div class="card">
-                    <div>小吃</div>
-                    <div>折扣卡</div>
-                   </div>
-            </li>
-            <li>
-                <div>
-                    <span>大地影院(澳东世纪店)</span>
-                    <span class="q"><span class="price">22.9</span> 元起</span>
+                    <div class="bl" v-if="item.tag.allowRefund">退</div>
+                    <div class="bl" v-if="item.tag.endorse">改签</div>
+                    <div class="or" v-if="item.tag.snack">小吃</div>
+                    <div class="or" v-if="item.tag.vipTag">折扣卡</div>
                 </div>
-                <div class="address">
-                    <span>金州区大连经济技术开发区澳东世纪3层</span>
-                    <span>1763.5km</span>
-                </div>
-                <div class="card">
-                    <div>小吃</div>
-                    <div>折扣卡</div>
-                   </div>
-            </li>
-            <li>
-                <div>
-                    <span>大地影院(澳东世纪店)</span>
-                    <span class="q"><span class="price">22.9</span> 元起</span>
-                </div>
-                <div class="address">
-                    <span>金州区大连经济技术开发区澳东世纪3层</span>
-                    <span>1763.5km</span>
-                </div>
-                <div class="card">
-                    <div>小吃</div>
-                    <div>折扣卡</div>
-                   </div>
-            </li>
-            <li>
-                <div>
-                    <span>大地影院(澳东世纪店)</span>
-                    <span class="q"><span class="price">22.9</span> 元起</span>
-                </div>
-                <div class="address">
-                    <span>金州区大连经济技术开发区澳东世纪3层</span>
-                    <span>1763.5km</span>
-                </div>
-                <div class="card">
-                    <div>小吃</div>
-                    <div>折扣卡</div>
-                   </div>
-            </li>
-            <li>
-                <div>
-                    <span>大地影院(澳东世纪店)</span>
-                    <span class="q"><span class="price">22.9</span> 元起</span>
-                </div>
-                <div class="address">
-                    <span>金州区大连经济技术开发区澳东世纪3层</span>
-                    <span>1763.5km</span>
-                </div>
-                <div class="card">
-                    <div>小吃</div>
-                    <div>折扣卡</div>
-                   </div>
-            </li>
-            <li>
-                <div>
-                    <span>大地影院(澳东世纪店)</span>
-                    <span class="q"><span class="price">22.9</span> 元起</span>
-                </div>
-                <div class="address">
-                    <span>金州区大连经济技术开发区澳东世纪3层</span>
-                    <span>1763.5km</span>
-                </div>
-                <div class="card">
-                    <div>小吃</div>
-                    <div>折扣卡</div>
-                   </div>
             </li>
         </ul>
     </div>
 </template>
 <script>
 export default {
-    name : 'Clist'
+    name : 'Clist',
+    data() {
+        return {
+            cinemaList:[]
+        }
+    },
+    methods: {
+        getDate() {
+            let date = new Date()
+            let year = date.getFullYear()
+            let month = date.getMonth()
+            let day = date.getDate()
+            return `${year}-${month}-${day}`
+        }
+    },
+    mounted() {
+        let day = this.getDate()
+       this.axios({
+           method:'get',
+           url:'ajax/cinemaList',
+           params:{
+                day:day,
+                ci:1,
+                limit:20
+           }
+       }).then(res => {
+           let data = res.data
+           if (Object.keys(data).length > 0) {
+               this.cinemaList = data.cinemas
+           }
+           console.log(this.cinemaList);
+       })
+    }
 }
 </script>
 <style scoped>

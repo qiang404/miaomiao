@@ -4,87 +4,143 @@
             <div class="city_hot">
                 <h2>热门城市</h2>
                 <ul class="clearfix">
-                    <li>上海</li>
-                    <li>北京</li>
-                    <li>上海</li>
-                    <li>北京</li>
-                    <li>上海</li>
-                    <li>北京</li>
-                    <li>上海</li>
-                    <li>北京</li>
+                    <li v-for="item in hotCity" :key="item.id">{{ item.nm }}</li>
                 </ul>
             </div>
-            <div class="city_sort">
-                <div>
-                    <h2>A</h2>
+            <div class="city_sort" ref="city_sort">
+                <div v-for="item in cityList" :key="item.index">
+                    <h2>{{ item.index }}</h2>
                     <ul>
-                        <li>阿拉善盟</li>
-                        <li>鞍山</li>
-                        <li>安庆</li>
-                        <li>安阳</li>
+                        <li v-for="value in item.list">{{ value.nm }}</li>
                     </ul>
                 </div>
-                <div>
-                    <h2>B</h2>
-                    <ul>
-                        <li>北京</li>
-                        <li>保定</li>
-                        <li>蚌埠</li>
-                        <li>包头</li>
-                    </ul>
-                </div>
-                <div>
-                    <h2>A</h2>
-                    <ul>
-                        <li>阿拉善盟</li>
-                        <li>鞍山</li>
-                        <li>安庆</li>
-                        <li>安阳</li>
-                    </ul>
-                </div>
-                <div>
-                    <h2>B</h2>
-                    <ul>
-                        <li>北京</li>
-                        <li>保定</li>
-                        <li>蚌埠</li>
-                        <li>包头</li>
-                    </ul>
-                </div>
-                <div>
-                    <h2>A</h2>
-                    <ul>
-                        <li>阿拉善盟</li>
-                        <li>鞍山</li>
-                        <li>安庆</li>
-                        <li>安阳</li>
-                    </ul>
-                </div>
-                <div>
-                    <h2>B</h2>
-                    <ul>
-                        <li>北京</li>
-                        <li>保定</li>
-                        <li>蚌埠</li>
-                        <li>包头</li>
-                    </ul>
-                </div>	
             </div>
         </div>
         <div class="city_index">
             <ul>
-                <li>A</li>
-                <li>B</li>
-                <li>C</li>
-                <li>D</li>
-                <li>E</li>
+                <li v-for="(item,index) in cityList" :key="item.index" @touchstart="handleToIndex(index)">{{ item.index }}</li>
             </ul>
         </div>
     </div>
 </template>
 <script>
 export default {
-    name : 'City'
+    name : 'City',
+    mounted() {
+        this.axios.get('/api/cityList').then((res) => {
+            let cityData = res.data
+            if (cityData.code === 0 ) {
+                this.formatCityList(cityData.data.cities)
+            } else {
+                console.log('数据请求失败')
+            }
+
+        })
+    },
+    data() {
+        return {
+            hotCity: [{
+                id: 1,
+                nm: "北京",
+                py: "beijing"
+            },
+            {
+                id: 10,
+                nm: "上海",
+                py: "shanghai"
+            },
+            {
+                id: 20,
+                nm: "广州",
+                py: "guangzhou"
+            },
+            {
+                id: 30,
+                nm: "深圳",
+                py: "shenzhen"
+            },
+            {
+                id: 57,
+                nm: "武汉",
+                py: "wuhan"
+            },
+            {
+                id: 40,
+                nm: "天津",
+                py: "tianjin"
+            },
+            {
+                id: 42,
+                nm: "西安",
+                py: "xian"
+            },
+            {
+                id: 55,
+                nm: "南京",
+                py: "nanjing"
+            },
+            {
+                id: 50,
+                nm: "杭州",
+                py: "hangzhou"
+            },
+            {
+                id: 59,
+                nm: "成都",
+                py: "chengdu"
+            },
+            {
+                id: 45,
+                nm: "重庆",
+                py: "chongqing"
+            },
+        ],
+            cityList:[]
+        }
+    },
+    methods: {
+        handleToIndex(index) {
+            let h2 = this.$refs.city_sort.getElementsByTagName('h2')
+            this.$refs.city_sort.parentNode.scrollTop = h2[index].offsetTop
+        },
+        formatCityList(cities) {
+            let cityList = []
+            for (let i = 0; i < cities.length; i++) {
+                let firstLetter = cities[i].py.substring(0,1).toUpperCase()
+                if (toCom(firstLetter)) {   // 新添加index
+                    cityList.push({index:firstLetter,list:[{nm:cities[i].nm,id:cities[i.id]}]})
+                } else { // 累加到已有index中
+                    for (let j = 0; j<cityList.length; j++) {
+                        if (cityList[j].index === firstLetter) {
+                            cityList[j].list.push({nm:cities[i].nm,id:cities[i].id})
+                        }
+                    }
+                }
+            }
+            function toCom(firstLetter) {
+                for (let i =0; i < cityList.length; i++) {
+                    if  (cityList[i].index === firstLetter) {
+                        return false
+                    }
+                }
+                return true
+            }
+            for (let i = 0;i < cityList.length;i++) {
+                let flag = true
+                for (let j = 1; j < cityList.length;j++) {
+                    let bmp = []
+                    if (cityList[j-1].index > cityList[j].index) {
+                        bmp = cityList[j-1]
+                        cityList[j-1] = cityList[j]
+                        cityList[j] = bmp
+                        flag = false
+                    }
+                }
+                if (flag) break
+            }
+            this.cityList = cityList
+        }
+    },
 }
 </script>
 <style scoped>
@@ -100,7 +156,7 @@ export default {
 .city_body .city_sort div{ margin-top: 20px;}
 .city_body .city_sort h2{ padding-left: 15px; line-height: 30px; font-size: 14px; background:#F0F0F0; font-weight: normal;}
 .city_body .city_sort ul{ padding-left: 10px; margin-top: 10px;}
-.city_body .city_sort ul li{ line-height: 30px; line-height: 30px;}
+.city_body .city_sort ul li{ line-height: 30px; line-height: 30px;cursor: pointer;}
 .city_body .city_index{ width:20px; display: flex; flex-direction:column; justify-content:center; text-align: center; border-left:1px #e6e6e6 solid;}
 
 </style>
