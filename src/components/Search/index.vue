@@ -3,28 +3,19 @@
         <div class="search_input">
             <div class="search_input_wrapper">
                 <i class="iconfont icon-sousuo"></i>
-                <input type="text">
+                <input type="text" v-model='keyword'>
             </div>					
         </div>
         <div class="search_result">
             <h3>电影/电视剧/综艺</h3>
             <ul>
-                <li>
-                    <div class="img"><img src="images/movie_1.jpg"></div>
+                <li v-for="item in movieList" :key="item.id">
+                    <div class="img"><img :src="item.img|setWH"></div>
                     <div class="info">
-                        <p><span>无名之辈</span><span>8.5</span></p>
-                        <p>A Cool Fish</p>
-                        <p>剧情,喜剧,犯罪</p>
-                        <p>2018-11-16</p>
-                    </div>
-                </li>
-                <li>
-                    <div class="img"><img src="images/movie_1.jpg"></div>
-                    <div class="info">
-                        <p><span>无名之辈</span><span>8.5</span></p>
-                        <p>A Cool Fish</p>
-                        <p>剧情,喜剧,犯罪</p>
-                        <p>2018-11-16</p>
+                        <p><span>{{ item.nm }}</span><span>{{ item.sc }}</span></p>
+                        <p>{{ item.enm }}</p>
+                        <p>{{ item.cat }}</p>
+                        <p>{{ item.rt }}</p>
                     </div>
                 </li>
             </ul>
@@ -33,7 +24,55 @@
 </template>
 <script>
 export default {
-    name : 'Search'
+    name : 'Search',
+    data() {
+        return {
+            keyword:'',
+            movieList:[],
+            cinema:[],
+        }
+    },
+    methods: {
+        cancelRequest() {
+            if (typeof this.source === 'function') {
+                this.source('终止请求')
+            }
+        }
+    },
+    watch: {
+        keyword(newVal) {
+            let that = this
+            this.cancelRequest()
+
+            this.axios({
+                url:'/ajax/search',
+                method:'get',
+                params:{
+                    kw:newVal,
+                    cityId:236,
+                    stype:-1,
+                },
+                cancelToken: new this.axios.CancelToken(function (c) {
+                    that.source = c
+                })
+            }).then((res) => {
+               let data = res.data
+               if (Object.keys(data)[0] === 'movies') {
+                    this.movieList = res.data.movies.list
+                    if (data.cinemas) this.cinema = res.cinemas
+               } else {
+                   this.movieList = []
+               }
+            }).catch((err) => {
+                if (this.axios.isCancel(err)) {
+                    // console.log('Request canceled',err.message) // 请求如果被取消，这里是返回取消的message
+                } else {
+                    // handle error
+                    console.log(err)
+                }
+            })
+        }
+    },
 }
 </script>
 <style scoped>

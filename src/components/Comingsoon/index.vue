@@ -1,15 +1,18 @@
 <template>
     <div class="movie_body">
         <ul>
-            <li>
-                <div class="pic_show"><img src="images/movie_1.jpg"></div>
+            <li v-for="item in comingList">
+                <div class="pic_show"><img :src="item.img|setWH"></div>
                 <div class="info_list">
-                    <h2>无名之辈</h2>
-                    <p><span class="person">17746</span> 人想看</p>
-                    <p>主演: 陈建斌,任素汐,潘斌龙</p>
-                    <p>2018-11-30上映</p>
+                    <div><h2>{{ item.nm }}</h2><span v-if="item.version=='v3d imax'" class="imax"></span></div>
+                    <p><span class="grade">{{ item.wish }}</span> 人想看</p>
+                    <p>{{ item.star }}</p>
+                    <p>{{ item.rt }}</p>
                 </div>
-                <div class="btn_pre">
+                <div v-if="item.showst==1" class="btn_pre">
+                    想看
+                </div>
+                <div v-else class="btn_wish">
                     预售
                 </div>
             </li>
@@ -18,7 +21,18 @@
 </template>
 <script>
 export default {
-    name : 'Comingsoon'
+    name : 'Comingsoon',
+    mounted() {
+       this.axios.get('/ajax/comingList?token=&limit=10').then((res) => {
+           let data = res.data
+           this.comingList = data.coming
+       })
+    },
+    data() {
+        return {
+            comingList:[]
+        }
+    },
 }
 </script>
 <style scoped>
@@ -28,10 +42,12 @@ export default {
 .movie_body .pic_show{ width:64px; height: 90px;}
 .movie_body .pic_show img{ width:100%;}
 .movie_body .info_list { margin-left: 10px; flex:1; position: relative;}
-.movie_body .info_list h2{ font-size: 17px; line-height: 24px; width:150px; overflow: hidden; white-space: nowrap; text-overflow:ellipsis;}
+.movie_body .info_list h2{float: left; font-size: 17px; line-height: 24px; width:150px; overflow: hidden; white-space: nowrap; text-overflow:ellipsis;}
 .movie_body .info_list p{ font-size: 13px; color:#666; line-height: 22px; width:200px; overflow: hidden; white-space: nowrap; text-overflow:ellipsis;}
 .movie_body .info_list .grade{ font-weight: 700; color: #faaf00; font-size: 15px;}
 .movie_body .info_list img{ width:50px; position: absolute; right:10px; top: 5px;}
-.movie_body .btn_mall , .movie_body .btn_pre{ width:47px; height:27px; line-height: 28px; text-align: center; background-color: #f03d37; color: #fff; border-radius: 4px; font-size: 12px; cursor: pointer;}
+.movie_body .info_list .imax{display: inline-block;background-size: contain;background-image: url(../../assets/maxs.png);width: 43px;height: 14px;margin-top: 5px;}
+.movie_body .btn_wish , .movie_body .btn_pre{ width:47px; height:27px; line-height: 28px; text-align: center; background-color: #f03d37; color: #fff; border-radius: 4px; font-size: 12px; cursor: pointer;}
 .movie_body .btn_pre{ background-color: #3c9fe6;}
+.movie_body .btn_wish{ background-color: #faaf00;}
 </style>

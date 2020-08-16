@@ -25,7 +25,7 @@ import Clist  from '@/components/Clist'
 
 export default {
     name : 'Cinema',
-      components : {
+    components : {
         Header,
         TabBar,
         Clist
