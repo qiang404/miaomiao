@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="main">
         <Header title="登录喵喵"/>
         <div id="content">
             <Login/>

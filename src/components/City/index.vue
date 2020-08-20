@@ -1,20 +1,25 @@
 <template>
     <div class="city_body">
-        <div class="city_list">
-            <div class="city_hot">
-                <h2>热门城市</h2>
-                <ul class="clearfix">
-                    <li v-for="item in hotCity" :key="item.id">{{ item.nm }}</li>
-                </ul>
-            </div>
-            <div class="city_sort" ref="city_sort">
-                <div v-for="item in cityList" :key="item.index">
-                    <h2>{{ item.index }}</h2>
-                    <ul>
-                        <li v-for="value in item.list">{{ value.nm }}</li>
+        <Loading v-if="isLoading"/>
+        <div v-else class="city_list">
+            <Scroller ref="city_list">
+            <div>
+                <div class="city_hot">
+                    <h2>热门城市</h2>
+                    <ul class="clearfix">
+                        <li v-for="item in hotCity" :key="item.id" @tap="handleToCity(item.id,item.nm)">{{ item.nm }}</li>
                     </ul>
                 </div>
+                <div class="city_sort" ref="city_sort">
+                    <div v-for="item in cityList" :key="item.index">
+                        <h2>{{ item.index }}</h2>
+                        <ul>
+                            <li v-for="(value,index) in item.list" :key="index" @tap="handleToCity(value.id,value.nm)">{{ value.nm }}</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
+         </Scroller>
         </div>
         <div class="city_index">
             <ul>
@@ -27,15 +32,28 @@
 export default {
     name : 'City',
     mounted() {
+
+        let clist = window.localStorage.getItem('cityList')
+        let hlist = window.localStorage.getItem('hotList')
+        if (clist && hlist) {
+            this.cityList = JSON.parse(clist) // 转JSON
+            this.hotCity = JSON.parse(hlist)
+            this.isLoading = false
+
+        } else {
         this.axios.get('/api/cityList').then((res) => {
             let cityData = res.data
             if (cityData.code === 0 ) {
                 this.formatCityList(cityData.data.cities)
+                this.isLoading = false
+                window.localStorage.setItem('cityList',JSON.stringify(this.cityList)) // JSON转字符串存储
+                window.localStorage.setItem('hotList',JSON.stringify(this.hotCity))
             } else {
                 console.log('数据请求失败')
             }
 
         })
+        }
     },
     data() {
         return {
@@ -95,13 +113,15 @@ export default {
                 py: "chongqing"
             },
         ],
-            cityList:[]
+            cityList:[],
+            isLoading:true
         }
     },
     methods: {
         handleToIndex(index) {
             let h2 = this.$refs.city_sort.getElementsByTagName('h2')
-            this.$refs.city_sort.parentNode.scrollTop = h2[index].offsetTop
+             this.$refs.city_list.toScrollTop(-h2[index].offsetTop)
+            
         },
         formatCityList(cities) {
             let cityList = []
@@ -139,6 +159,12 @@ export default {
                 if (flag) break
             }
             this.cityList = cityList
+        },
+        handleToCity(id,nm) {
+            this.$store.commit('city/CITY_INFO',{id,nm})
+            window.localStorage.setItem('nowNm',nm)
+            window.localStorage.setItem('nowId',id)
+            this.$router.push('/movie/nowplaying')
         }
     },
 }

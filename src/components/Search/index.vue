@@ -49,8 +49,8 @@ export default {
                 method:'get',
                 params:{
                     kw:newVal,
-                    cityId:236,
-                    stype:-1,
+                    cityId:this.$store.state.city.id,
+                    stype:0,
                 },
                 cancelToken: new this.axios.CancelToken(function (c) {
                     that.source = c
