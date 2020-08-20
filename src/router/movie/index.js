@@ -19,8 +19,17 @@ export default {
             component : () => import('@/components/Search')
         },
         {
-            path : '/movie',
-            redirect : '/movie/nowplaying'
-        }
+            path:'detail/:mid',
+            components:{
+                detail:() => import('@/views/Movie/detail')
+            },
+            props:{
+                detail:true  // 普通路由只需要props:true就行，具有多个路由视图的的则需要单独配置
+            }
+        },
+        {
+            path: '/movie',
+            redirect: '/movie/nowplaying'
+        },
     ]
 }

@@ -4,10 +4,10 @@
         <Scroller v-else ref="scroll" :that="mythis" :url="url" :handleToPullUp="loadMoreMovies">
             <ul>
                 <li v-for="item in movieList" :key="item.id">
-                    <div @tap="handelToDetail" class="pic_show"><img :src="item.img|setWH"></div>
+                    <div @tap="handleToDetail(item.id)" class="pic_show"><img :src="item.img|setWH"></div>
                     <div class="info_list">
                         <div>
-                            <h2>{{ item.nm }}</h2><span v-if="item.version=='v3d imax'" class="imax"></span>
+                            <h2  @tap="handleToDetail(item.id)">{{ item.nm }}</h2><span v-if="item.version=='v3d imax'" class="imax"></span>
                         </div>
                         <p v-if="item.sc!=0">观众评 <span class="grade">{{ item.sc }}</span></p>
                         <p v-else><span class="grade">{{ item.wish }}</span>人想看</p>
@@ -66,8 +66,8 @@ export default {
         }
     },
     methods: {
-        handelToDetail(){
-            console.log('ok');
+        handleToDetail(mid){
+            this.$router.push('/movie/detail/'+mid)
         },
     },
     updated() {
